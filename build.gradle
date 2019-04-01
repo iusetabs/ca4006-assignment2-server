@@ -20,6 +20,7 @@ bootJar {
 repositories {
     mavenCentral()
 }
+
 targetCompatibility = 1.8
 
 dependencies {

@@ -1,2 +1,5 @@
 #ignoring db files
 *.db
+
+#ignore class files 
+*.class
