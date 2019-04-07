@@ -1,5 +1,7 @@
 package hello;
 
+import org.hibernate.annotations.Table;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,9 +17,10 @@ public class Rooms{
     private String name;
 
     Rooms(){}
-    Rooms(String n, int c){
+    Rooms(String n, int c, Integer xid){
         this.capacity = c;
         this.name = n;
+        this.id = xid;
     }
 
     //Begin getters and setters
@@ -35,6 +38,13 @@ public class Rooms{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(Integer xID){
+        this.id = xID;
+    }
+    public Integer getId(){
+        return this.id;
     }
 
 }

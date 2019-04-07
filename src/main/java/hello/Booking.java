@@ -1,12 +1,20 @@
 package hello;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Booking{
+
+   @Id
+   @GeneratedValue(strategy= GenerationType.AUTO)
+   int id;
    int day; //0 indexing
-   int month;
    String time;
    int num_attendees;
    String room_name;
-
 
    Booking(){}
    Booking(int d, String t, int n, String r){
@@ -49,12 +57,12 @@ public class Booking{
         this.room_name = room_name;
     }
 
-    public int getMonth() {
-        return month;
+    public void setId(int xID){
+       this.id = xID;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
+    public Integer getId(){
+       return this.id;
     }
 
 
