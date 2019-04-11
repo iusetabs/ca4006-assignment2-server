@@ -54,7 +54,6 @@ public class BookingsController {
     public Future<Iterable<Booking>> asyncBooking(){
         try {
             Thread.sleep(1000);
-            // This returns a JSON or XML with the users
             return new AsyncResult<>(bookingsRepository.findAll());
         }
         catch (InterruptedException e){
@@ -62,51 +61,112 @@ public class BookingsController {
         }
     }
 
-    @Async("threadPoolTaskExecutor")
     @RequestMapping(path="/bookings", method=POST)
-    public @ResponseBody String addBooking(@RequestBody Booking bk) {
-        for (Booking b : bookingsRepository.findAll()){
-            if (bk.getRoom_name().equals(b.getRoom_name()))
-                if(bk.getDay() == b.getDay())
-                    if (bk.getTime().equals(b.getTime()))
-                        return "Error, booking already exists";
+    public @ResponseBody String addBooking(@RequestBody Booking bk) throws ExecutionException, InterruptedException {
+        Future<String> future = asyncAddBooking(bk);
+        while (true) {
+            if (future.isDone()) {
+                return future.get();
+            }
+            Thread.sleep(1000);
         }
-        this.bookingsRepository.save(bk);
-        return "Success booking made";
+    }
+    @Async("threadPoolTaskExecutor")
+    public Future<String> asyncAddBooking(Booking bk){
+        try {
+            Thread.sleep(1000);
+            this.bookingsRepository.save(bk);
+            for (Booking b : bookingsRepository.findAll()) {
+                if (bk.getRoom_name().equals(b.getRoom_name()))
+                    if (bk.getDay() == b.getDay())
+                        if (bk.getTime().equals(b.getTime()))
+                            return new AsyncResult<>("Error booking already exists");
+            }
+            this.bookingsRepository.save(bk);
+            return new AsyncResult<>("Success booking made");
+        }
+        catch (InterruptedException e){
+            return new AsyncResult<>(null);
+        }
     }
 
-    @Async("threadPoolTaskExecutor")
     @RequestMapping(path="/bookings", method=DELETE)
-    public @ResponseBody String deleteAllBookings() {
-        try{
-            this.bookingsRepository.deleteAll();
-            return "All booking objects have been deleted.";
-        }
-        catch(Exception e){
-            return "Fail: " + e.getMessage();
+    public @ResponseBody String deleteAllBookings() throws ExecutionException, InterruptedException {
+        Future<String> future = asyncDeleteAllBookings();
+        while (true) {
+            if (future.isDone()) {
+                return future.get();
+            }
+            Thread.sleep(1000);
         }
     }
 
     @Async("threadPoolTaskExecutor")
-    @RequestMapping(path="/timetableWeek/rooms/{name}/startDay/{dayS}/endDay/{dayE}", method=GET)
-    public @ResponseBody List<Booking> getBookingsForRoomForWeek(@PathVariable String name, @PathVariable Integer dayS, @PathVariable Integer dayE) {
-        List<Booking> resp = new ArrayList<>();
-        for (Booking b : bookingsRepository.findAll()){
-            if (b.getRoom_name().equals(name) && b.getDay() >= dayS && b.getDay() <= dayE)
-                resp.add(b);
+    public Future<String> asyncDeleteAllBookings(){
+        try {
+            Thread.sleep(1000);
+            this.bookingsRepository.deleteAll();
+            return new AsyncResult<>("All booking objects have been deleted.");
         }
-        return resp;
+        catch (InterruptedException e){
+            return new AsyncResult<>("Fail: " + e.getMessage());
+        }
+    }
+
+    @RequestMapping(path="/timetableWeek/rooms/{name}/startDay/{dayS}/endDay/{dayE}", method=GET)
+    public @ResponseBody List<Booking> getBookingsForRoomForWeek(@PathVariable String name, @PathVariable Integer dayS, @PathVariable Integer dayE) throws ExecutionException, InterruptedException {
+        Future<List<Booking>> future = asyncGetBookingsForRoomForWeek(name, dayS, dayE);
+        while (true) {
+            if (future.isDone()) {
+                return future.get();
+            }
+            Thread.sleep(1000);
+        }
+    }
+
+    @Async("threadPoolTaskExecutor")
+    public Future<List<Booking>> asyncGetBookingsForRoomForWeek(String name, Integer dayS, Integer dayE){
+        try {
+            Thread.sleep(1000);
+            List<Booking> resp = new ArrayList<>();
+            for (Booking b : bookingsRepository.findAll()) {
+                if (b.getRoom_name().equals(name) && b.getDay() >= dayS && b.getDay() <= dayE)
+                    resp.add(b);
+            }
+            return new AsyncResult<>(resp);
+        }
+        catch (InterruptedException e){
+            return new AsyncResult<>(null);
+        }
+
     }
     @Async("threadPoolTaskExecutor")
     @RequestMapping(path="/checkRoom/rooms/{name}/day/{day}/time/{time}", method=GET)
-    public @ResponseBody List<Booking> getBookingsForRoomForDayAndTime(@PathVariable String name, @PathVariable Integer day, @PathVariable String time) {
+    public @ResponseBody List<Booking> getBookingsForRoomForDayAndTime(@PathVariable String name, @PathVariable Integer day, @PathVariable String time) throws ExecutionException, InterruptedException {
         // This returns a JSON or XML with the users
-        List<Booking> resp = new ArrayList<>();
-        for (Booking b : bookingsRepository.findAll()){
-            if (b.getRoom_name().equals(name) && b.getDay() == day && b.getTime().equals(time))
-                resp.add(b);
+        Future<List<Booking>> future = asyncGetBookingsForRoomForDayAndTime(name, day, time);
+        while (true) {
+            if (future.isDone()) {
+                return future.get();
+            }
+            Thread.sleep(1000);
         }
-        return resp;
+    }
+
+    public Future<List<Booking>> asyncGetBookingsForRoomForDayAndTime(String name, Integer day, String time){
+        // This returns a JSON or XML with the users
+        try {
+            Thread.sleep(1000);
+            List<Booking> resp = new ArrayList<>();
+            for (Booking b : bookingsRepository.findAll()){
+                if (b.getRoom_name().equals(name) && b.getDay() == day && b.getTime().equals(time))
+                    resp.add(b);
+            }
+            return new AsyncResult<>(resp);
+        }
+        catch (InterruptedException e){
+            return new AsyncResult<>(null);
+        }
     }
 
 }
